@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
+          sans-serif;
+      }
+      body {
+        background-color: rgb(32, 33, 33);
+      }
+      #nav {
+        height: 50px;
+        display: flex;
+      }
+      #nav > img {
+        margin-top: 10px;
+        width: 150px;
+        height: 30px;
+      }
+
+      #searchcon {
+        width: 95%;
+        margin: auto;
+        display: flex;
+        justify-content: center;
+      }
+      .searchin {
+        height: 35px;
+        width: 400px;
+        border: 1px solid;
+        border-radius: 10px 0 0 10px;
+      }
+
+      input[type="search"] {
+        color: white;
+      }
+      input {
+        height: 25px;
+        width: 390px;
+        border: none;
+        background-color: transparent;
+        font-size: 16px;
+        padding: 5px;
+      }
+
+      .icon {
+        height: 35px;
+        width: 55px;
+        border: 1px solid;
+        border-radius: 0 10px 10px 0;
+        background-color: rgb(34, 32, 32);
+        text-align: center;
+      }
+      .icon > img {
+        width: 35px;
+      }
+      .icon:hover {
+        cursor: pointer;
+      }
+
+      #container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 40px;
+        width: 95%;
+        margin: auto;
+        margin-top: 20px;
+      }
+
+      .video:hover {
+        cursor: pointer;
+        box-shadow: rgba(217, 206, 206, 0.16) 0px 10px 36px 0px,
+          rgba(227, 219, 219, 0.06) 0px 0px 0px 1px;
+      }
+      .title_name {
+        margin-top: 10px;
+        line-height: 1.5;
+      }
+      .sort {
+        margin-left: 50px;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="nav">
+      <img
+        src="https://www.edigitalagency.com.au/wp-content/uploads/Youtube-logo-white-png.png"
+        alt="logo"
+      />
+
+      <div id="searchcon">
+        <div class="searchin">
+          <input type="search" id="query" placeholder="Search" />
+        </div>
+        <div onclick="search()" class="icon">
+          <img
+            src="https://cdn4.iconfinder.com/data/icons/round-buttons/512/black_search.png"
+            alt="glass"
+          />
+        </div>
+      </div>
+    </div>
+    <button class="sort" onclick="sort()">Sort by name</button>
+
+    <div id="container"></div>
+  </body>
+</html>
+<script>
+  let q;
+  let key = "AIzaSyAOwMiS0tayX5W4-e5F0aOEtZg4aGSY9qg";
+  let popular = async () => {
+    let url = `https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&order=viewCount&key=${key}`;
+    let data = await getData(url);
+    let data1 = (data = data.items);
+    q = data1;
+    append(data1);
+  };
+
+  let search = async () => {
+    let query = document.getElementById("query").value;
+    let url = `https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${query}&key=${key}`;
+    let data = await getData(url);
+    let data1 = (data = data.items);
+    q = data1;
+    append(data1);
+  };
+
+  let getData = async (url) => {
+    let res = await fetch(url);
+    let data = await res.json();
+    return data;
+  };
+
+  let append = (data) => {
+    let container = document.getElementById("container");
+    container.innerHTML = null;
+    data.forEach((el) => {
+      console.log(el);
+      let img = document.createElement("img");
+      img.src = el.snippet.thumbnails.medium.url;
+
+      let h3 = document.createElement("p");
+      h3.setAttribute("class", "title_name");
+      h3.innerText = el.snippet.title;
+      h3.style.color = "white";
+
+      let div = document.createElement("div");
+      div.onclick = () => {
+        savevideo(el);
+      };
+      div.setAttribute("class", "video");
+      div.append(img, h3);
+      container.append(div);
+    });
+  };
+
+  let savevideo = (data) => {
+    localStorage.setItem("video", JSON.stringify(data));
+    window.location.href = "video.html";
+  };
+
+  let sort = () => {
+    let data = q;
+    data = data.sort(function (a, b) {
+      if (a.snippet.title > b.snippet.title) return 1;
+      if (a.snippet.title < b.snippet.title) return -1;
+      return 0;
+    });
+    append(data);
+  };
+
+  popular();
+</script>
